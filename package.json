@@ -16,7 +16,7 @@
   "dependencies": {
     "express": "~4.0.0",
     "socket.io": "~0.9.16",
-    "node-opcua": "~0.0.11",
+    "node-opcua": "~0.0.12",
     "colors": "*"
   }
 }
