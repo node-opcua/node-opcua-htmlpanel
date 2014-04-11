@@ -1,0 +1,128 @@
+
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<hr>
+
+
+<script src="javascript/jquery.min.js"></script>
+<script src="javascript/RGraph/RGraph.common.core.js"></script>
+<script src="javascript/RGraph/RGraph.gauge.js"></script>
+<script src="javascript/RGraph/RGraph.common.effects.js" ></script>
+<script src="javascript/RGraph/RGraph.line.js" ></script>
+
+<script>
+    var gauge;
+    var canvas;
+    var obj = null;
+    var data      = [];
+    var numvalues = 1200;
+
+    window.onload = function () {
+
+        gauge = new RGraph.Gauge('cvs', 0, 100, 84)
+                .set('scale.decimals', 0)
+                .set('tickmarks.small', 50)
+                .set('tickmarks.big', 5)
+                .set('title.top', 'Volume')
+                .set('title.top.size', 24)
+                .set('title.top.pos', 0.15)
+                .set('title.bottom', 'm³')
+                .set('title.bottom.color', '#aaa')
+                .set('border.outer', 'Gradient(white:white:white:white:white:white:white:white:white:white:#aaa)')
+                .draw();
+
+
+        canvas    = document.getElementById("cvs_graph");
+
+        function prepare_graph() {
+
+                var l         = 0; // The letter 'L' - NOT a one
+                var updates = 0;
+
+                obj = new RGraph.Line('cvs_graph', [])
+                    .set('title.vpos', 0.5)
+                    .set('title.yaxis.pos', 0.5)
+                    .set('colors', ['black'])
+                    .set('linewidth',0.75)
+                    .set('yaxispos', 'right')
+                    .set('ymax', 100)
+                    .set('xticks', 25)
+                    .set('numyticks', 0)
+                    .set('numxticks', 0)
+                    .set('background.grid', true)
+                    .set('tickmarks', true)
+                    .set('shadow', false)
+                    .set('gutter.top', 5)
+                    .set('gutter.bottom', 5);
+
+
+                // Pre-pad the arrays with null values
+                for (var i=0; i<numvalues; ++i) { data.push(null); }
+
+        }
+        prepare_graph();
+    }
+    function drawGraph (value,timestamp) {
+        if (!obj) return;
+        RGraph.Clear(canvas);
+
+        // Add some data to the data arrays
+        var len = data.length;
+
+        //xx var lastvalue    = RG.is_null(data[len - 1]) ? 26 : data[len - 1];
+        //xx var random_value = RG.random(lastvalue  - 2,lastvalue  + 2);
+
+        //xx random_value = Math.max(random_value, 0);
+        //xx random_value = Math.min(random_value, 50);
+
+        data.push(value);
+
+        if (data.length > numvalues) {
+            data = RGraph.array_shift(data);
+        }
+        obj.original_data[0] = data;
+        obj.Draw();
+    }
+
+</script>
+<canvas id="cvs" width="250" height="250">[No canvas support]</canvas>
+<canvas id="cvs_graph" width="650" height="250">[No canvas support]</canvas>
+
+<div id="field"></div>
+<div id="content"></div>
+
+<script src='/socket.io/socket.io.js'></script>
+<script>
+
+    var messages = [];
+    var socket = io.connect('http://localhost:3700');
+    var field = document.getElementById("field");
+    var sendButton = document.getElementById("send");
+    var content = document.getElementById("content");
+
+    socket.on('message', function (data) {
+
+/*
+        console.log(JSON.stringify(data,null," "));
+        messages.push(data.value.value + " " + data.sourceTimestamp);
+        var html = '';
+        for (var i = 0; i < messages.length; i++) {
+            html += messages[i] + '<br />';
+        }
+        content.innerHTML = html;
+ */
+
+        gauge.value = data.value;
+        gauge.draw();
+//xx        gauge.grow();
+
+        drawGraph(data.value);
+    });
+
+    // sendButton.onclick = function () { var text = field.value;  socket.emit('send', { message: text }); };
+
+</script>
+
+
+
