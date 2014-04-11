@@ -1,6 +1,6 @@
 {
   "name": "node-opcua-htmlpanel",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Small HTML panel to display a OPCUA monitored variable based on node, express, socket.io  and node-opcua",
   "main": "app.js",
   "bin": {},
