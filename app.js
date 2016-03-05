@@ -5,11 +5,13 @@ var opcua = require("node-opcua");
 var async = require("async");
 var color = require("colors");
 
-var client = new opcua.OPCUAClient();
+var client = new opcua.OPCUAClient({
+
+});
 
 var hostname = require("os").hostname();
 hostname = hostname.toLowerCase();
-var endpointUrl = "opc.tcp://" + hostname + ":1234/UA/SampleServer";
+var endpointUrl = "opc.tcp://" + hostname + ":26543/UA/SampleServer";
 
 var the_subscription,the_session;
 
@@ -29,11 +31,11 @@ async.series([
     },
     function(callback) {
         the_subscription=new opcua.ClientSubscription(the_session,{
-            requestedPublishingInterval: 200,
-            requestedMaxKeepAliveCount: 2000,
-            requestedLifetimeCount:     6000,
-            maxNotificationsPerPublish: 10,
-            publishingEnabled: false,
+            requestedPublishingInterval: 2000,
+            requestedMaxKeepAliveCount:  2000,
+            requestedLifetimeCount:      6000,
+            maxNotificationsPerPublish:  1000,
+            publishingEnabled: true,
             priority: 10
         });
 //xx the_subscription.monitor("i=155",DataType.Value,function onchanged(dataValue){
@@ -61,6 +63,8 @@ async.series([
 });
 
 
+var nodeIdToMonitor = "ns=1;s=Temperature";
+
 function startHTTPServer() {
 
 
@@ -81,22 +85,30 @@ function startHTTPServer() {
 
     var monitoredItem = the_subscription.monitor(
         {
-            nodeId: "ns=4;b=1020ffaa",
+            nodeId: nodeIdToMonitor,
             attributeId: 13
         },
         {
             samplingInterval: 100,
             discardOldest: true,
             queueSize: 100
+        },opcua.read_service.TimestampsToReturn.Both,function(err) {
+            if (err) {
+                console.log("Monitor  "+ nodeIdToMonitor.toString() +  " failed");
+                console.loo("ERr = ",err.message);
+            }
+
         });
+
     monitoredItem.on("changed", function(dataValue){
-        // console.log(" value has changed " +  JSON.stringify(dataValue));
+
+        console.log(" value has changed " +  dataValue.toString());
+
         io.sockets.emit('message', {
             value: dataValue.value.value,
             timestamp: dataValue.serverTimestamp
         });
     });
-
 
 }
 

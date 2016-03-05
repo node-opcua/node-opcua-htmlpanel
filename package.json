@@ -14,9 +14,9 @@
   "license": "MIT",
   "devDependencies": {},
   "dependencies": {
-    "express": "~4.0.0",
-    "socket.io": "~0.9.16",
-    "node-opcua": "~0.0.19",
+    "express": "~4.13.4",
+    "socket.io": "~1.4.5",
+    "node-opcua": "~0.0.52",
     "colors": "*"
   }
 }
