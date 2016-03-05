@@ -5,7 +5,7 @@ small HTML panel to display a OPCUA monitored variable based on node, express, s
 
 
 ![alt text](
-https://raw.githubusercontent.com/node-opcua/opcua-opcua-htmlpanel/master/docs/image.png "...")
+https://raw.githubusercontent.com/node-opcua/node-opcua-htmlpanel/master/docs/image.png "...")
 
 
 #### how to install
