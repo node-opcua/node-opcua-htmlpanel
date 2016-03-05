@@ -24,7 +24,7 @@
                 .set('scale.decimals', 0)
                 .set('tickmarks.small', 50)
                 .set('tickmarks.big', 5)
-                .set('title.top', 'Volume')
+                .set('title.top', 'Temperature')
                 .set('title.top.size', 24)
                 .set('title.top.pos', 0.15)
                 .set('title.bottom', 'm³')
@@ -91,7 +91,7 @@
 
 <div id="field"></div>
 <div id="content"></div>
-
+<div id="info"></div>
 <script src='/socket.io/socket.io.js'></script>
 <script>
 
@@ -100,7 +100,7 @@
     var field = document.getElementById("field");
     var sendButton = document.getElementById("send");
     var content = document.getElementById("content");
-
+    var info = document.getElementById("info");
     socket.on('message', function (data) {
 
 /*
@@ -116,6 +116,11 @@
         gauge.value = data.value;
         gauge.draw();
 //xx        gauge.grow();
+
+        gauge.set('title.top', data.browseName);
+
+        info.innerHTML = "nodeId= " + data.nodeId + " timestamp= "+ data.timestamp;
+
 
         drawGraph(data.value);
     });

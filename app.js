@@ -102,11 +102,13 @@ function startHTTPServer() {
 
     monitoredItem.on("changed", function(dataValue){
 
-        console.log(" value has changed " +  dataValue.toString());
+        //xx console.log(" value has changed " +  dataValue.toString());
 
         io.sockets.emit('message', {
             value: dataValue.value.value,
-            timestamp: dataValue.serverTimestamp
+            timestamp: dataValue.serverTimestamp,
+            nodeId: nodeIdToMonitor.toString(),
+            browseName: "Temperature"
         });
     });
 
