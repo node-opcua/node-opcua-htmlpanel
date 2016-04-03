@@ -15,13 +15,19 @@ var endpointUrl = "opc.tcp://" + hostname + ":26543/UA/SampleServer";
 
 var the_subscription,the_session;
 
+var userIdentity  = null;
+//xx var  userIdentity = { userName: "opcuauser", password: "opcuauser" };
+
+
 async.series([
     function(callback) {
         console.log(" connecting to ", endpointUrl.cyan.bold);
         client.connect(endpointUrl,callback);
     },
     function(callback) {
-        client.createSession(function (err,session){
+
+
+        client.createSession(userIdentity,function (err,session){
             if (!err) {
                 the_session = session;
                 console.log(" session created".yellow);
