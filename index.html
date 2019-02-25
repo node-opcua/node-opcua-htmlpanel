@@ -112,17 +112,18 @@
         }
         content.innerHTML = html;
  */
+        if (data.browseName === "Temperature") {
+            gauge.value = data.value;
+            gauge.draw();
+    //xx        gauge.grow();
 
-        gauge.value = data.value;
-        gauge.draw();
-//xx        gauge.grow();
+            gauge.set('title.top', data.browseName);
 
-        gauge.set('title.top', data.browseName);
-
-        info.innerHTML = "nodeId= " + data.nodeId + " timestamp= "+ data.timestamp;
+            info.innerHTML = "nodeId= " + data.nodeId + " timestamp= "+ data.timestamp;
 
 
-        drawGraph(data.value);
+            drawGraph(data.value);
+        }
     });
 
     // sendButton.onclick = function () { var text = field.value;  socket.emit('send', { message: text }); };
