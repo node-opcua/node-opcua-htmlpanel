@@ -4,8 +4,8 @@ var color = require("colors");
 
 
 class OPCUADemo {
-  constructor(nodeIdToMonitor) {
-    this.nodeIdToMonitor = nodeIdToMonitor
+  constructor(nodeIdsToMonitor) {
+    this.nodeIdsToMonitor = nodeIdsToMonitor
 
     this.client = new opcua.OPCUAClient({})
 
@@ -65,23 +65,28 @@ class OPCUADemo {
                       });
   }
 
-  getMonitoredItem() {
-    return this.subscription.monitor(
-        {
-            nodeId: this.nodeIdToMonitor,
-            attributeId: 13
-        },
-        {
-            samplingInterval: 100,
-            discardOldest: true,
-            queueSize: 100
-        },
-        opcua.read_service.TimestampsToReturn.Both, (err) => {
-            if (err) {
-                console.log("Monitor  "+ this.nodeIdToMonitor.toString() +  " failed");
-                console.log("ERr = ",err.message);
-            }
-        });
+  getMonitoredItems() {
+    const monitoredItems = {}
+    for (const [browseName, nodeId] of Object.entries(nodeIdsToMonitor)) {
+      monitoredItems[browseName] = this.subscription.monitor(
+          {
+              nodeId: nodeId,
+              attributeId: 13
+          },
+          {
+              samplingInterval: 100,
+              discardOldest: true,
+              queueSize: 100
+          },
+          opcua.read_service.TimestampsToReturn.Both, (err) => {
+              if (err) {
+                  console.log("Monitor  "+ nodeId.toString() +  " failed");
+                  console.log("Err = ", err.message);
+              }
+          })
+    }
+
+    return monitoredItems
   }
 
   start() {
@@ -91,17 +96,25 @@ class OPCUADemo {
         this.opcClientCreateSession.bind(demo),
         this.opcClientCreateSubscription.bind(demo)
       ],
-      err => err ? console.log(err) : new WebSocketServiceLayer(this.getMonitoredItem())
+      err => err ? console.log(err) : new WebSocketServiceLayer(this.getMonitoredItems())
     );
   }
 
 }
 
-const demo = new OPCUADemo("ns=1;s=Temperature")
+
+nodeIdsToMonitor = {
+  "Temperature": "ns=1;s=Temperature",
+  "FanSpeed": "ns=1;s=FanSpeed",
+  "PumpSpeed": "ns=1;s=PumpSpeed",
+  "Pressure": "ns=1;s=Pressure"
+}
+
+const demo = new OPCUADemo(nodeIdsToMonitor)
 demo.start()
 
 class WebSocketServiceLayer {
-  constructor(monitoredItem) {
+  constructor(monitoredItems) {
     var express = require("express");
     var port = 3700;
 
@@ -121,16 +134,17 @@ class WebSocketServiceLayer {
     // });
     });
 
-    monitoredItem.on("changed", dataValue => {
+    for (const [browseName, monitoredItem] of Object.entries(monitoredItems)) {
+      monitoredItem.on("changed", dataValue => {
 
-        console.log(" value has changed " +  dataValue.toString());
-
-        io.sockets.emit('message', {
-            value: dataValue.value.value,
-            timestamp: dataValue.serverTimestamp,
-            nodeId: demo.nodeIdToMonitor.toString(),
-            browseName: "Temperature"
-        });
-    });
+          console.log(" value has changed " +  dataValue.toString());
+          io.sockets.emit('message', {
+              value: dataValue.value.value,
+              timestamp: dataValue.serverTimestamp,
+              nodeId: demo.nodeIdsToMonitor[browseName].toString(),
+              browseName: browseName
+          });
+      });
+    }
   }
 }
