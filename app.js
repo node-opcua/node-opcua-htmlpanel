@@ -1,126 +1,111 @@
-var express = require("express");
-var port = 3700;
+const express = require("express");
+const chalk = require("chalk");
+const socketIO = require("socket.io");
+const port = 3700;
 
-var opcua = require("node-opcua");
-var async = require("async");
-var color = require("colors");
-
-var client = new opcua.OPCUAClient({
-
-});
-
-var hostname = require("os").hostname();
-hostname = hostname.toLowerCase();
-var endpointUrl = "opc.tcp://" + hostname + ":26543/UA/SampleServer";
-
-var the_subscription,the_session;
-
-var userIdentity  = null;
-//xx var  userIdentity = { userName: "opcuauser", password: "opcuauser" };
+const {
+    AttributeIds,
+    OPCUAClient,
+    TimestampsToReturn,
+} = require("node-opcua");
 
 
-async.series([
-    function(callback) {
-        console.log(" connecting to ", endpointUrl.cyan.bold);
-        client.connect(endpointUrl,callback);
-    },
-    function(callback) {
+const hostname = require("os").hostname().toLowerCase();
+// const endpointUrl = "opc.tcp://" + hostname + ":26543/UA/SampleServer";
+const endpointUrl = "opc.tcp://opcuademo.sterfive.com:26543/UA/SampleServer";
+const nodeIdToMonitor = "ns=1;s=Temperature";
 
-
-        client.createSession(userIdentity,function (err,session){
-            if (!err) {
-                the_session = session;
-                console.log(" session created".yellow);
-            }
-            callback(err);
+(async () => {
+    try {
+        const client = OPCUAClient.create({
+            endpoint_must_exist: false
         });
-    },
-    function(callback) {
-        the_subscription=new opcua.ClientSubscription(the_session,{
+        client.on("backoff", (retry, delay) => {
+            console.log("Retrying to connect to ", endpointUrl, " attempt ", retry);
+        });
+        console.log(" connecting to ", chalk.cyan(endpointUrl));
+        await client.connect(endpointUrl);
+        console.log(" connected to ", chalk.cyan(endpointUrl));
+
+        const session = await client.createSession();
+        console.log(" session created".yellow);
+
+        const subscription = await session.createSubscription2({
             requestedPublishingInterval: 2000,
-            requestedMaxKeepAliveCount:  2000,
-            requestedLifetimeCount:      6000,
-            maxNotificationsPerPublish:  1000,
+            requestedMaxKeepAliveCount: 20,
+            requestedLifetimeCount: 6000,
+            maxNotificationsPerPublish: 1000,
             publishingEnabled: true,
             priority: 10
         });
-//xx the_subscription.monitor("i=155",DataType.Value,function onchanged(dataValue){
-//xx    console.log(" temperature has changed " + dataValue.value.value);
-//xx });
-        the_subscription.on("started",function(){
-            console.log("subscription started");
-            callback();
 
-        }).on("keepalive",function(){
+        subscription.on("keepalive", function () {
             console.log("keepalive");
-
-        }).on("terminated",function(){
+        }).on("terminated", function () {
             console.log(" TERMINATED ------------------------------>")
         });
 
-    }
-],function(err) {
-    if (!err) {
-        startHTTPServer();
-    } else {
-        // cannot connect to client
-        console.log(err);
-    }
-});
-
-
-var nodeIdToMonitor = "ns=1;s=Temperature";
-
-function startHTTPServer() {
-
-
-    var app = express();
-    app.get("/", function(req, res){
-        res.send("It works!");
-    });
-
-    app.use(express.static(__dirname + '/'));
-
-    var io = require('socket.io').listen(app.listen(port));
-
-    io.sockets.on('connection', function (socket) {
-//        socket.on('send', function (data) {
-//            io.sockets.emit('message', data);
-//        });
-    });
-
-    var monitoredItem = the_subscription.monitor(
-        {
+        // --------------------------------------------------------
+        const app = express();
+        app.get("/", function (req, res) {
+            res.send("It works! <a href='./index.html'>Start Here</a>");
+        });
+    
+        app.use(express.static(__dirname + '/'));
+    
+        const io =socketIO.listen(app.listen(port));
+    
+        io.sockets.on('connection', function (socket) {
+        });
+    
+        console.log("Listening on port " + port);
+        console.log("visit http://localhost:" + port);
+        // --------------------------------------------------------
+    
+        const itemToMonitor = {
             nodeId: nodeIdToMonitor,
-            attributeId: 13
-        },
-        {
+            attributeId: AttributeIds.Value
+        };
+        const parameters = {
             samplingInterval: 100,
             discardOldest: true,
             queueSize: 100
-        },opcua.read_service.TimestampsToReturn.Both,function(err) {
-            if (err) {
-                console.log("Monitor  "+ nodeIdToMonitor.toString() +  " failed");
-                console.loo("ERr = ",err.message);
+        };
+        const monitoredItem = await subscription.monitor(itemToMonitor, parameters, TimestampsToReturn.Both);
+
+        monitoredItem.on("changed", (dataValue) => {
+            console.log(dataValue.value.toString());
+            io.sockets.emit('message', {
+                value: dataValue.value.value,
+                timestamp: dataValue.serverTimestamp,
+                nodeId: nodeIdToMonitor,
+                browseName: "Temperature"
+            });
+        });
+
+        // detect CTRL+C and close
+        let running = true;
+        process.on("SIGINT", async () => {
+            if (!running) {
+                return; // avoid calling shutdown twice
             }
+            console.log("shutting down client");
+            running = false;
+
+            await subscription.terminate();
+
+            await session.close();
+            await client.disconnect();
+            console.log("Done");
+            process.exit(0);
 
         });
+  
+    }
+    catch (err) {
+        console.log(chalk.bgRed.white("Error" + err.message));
+        console.log(err);
+        process.exit(-1);
+    }
+})();
 
-    monitoredItem.on("changed", function(dataValue){
-
-        //xx console.log(" value has changed " +  dataValue.toString());
-
-        io.sockets.emit('message', {
-            value: dataValue.value.value,
-            timestamp: dataValue.serverTimestamp,
-            nodeId: nodeIdToMonitor.toString(),
-            browseName: "Temperature"
-        });
-    });
-
-}
-
-
-
-
-console.log("Listening on port " + port);

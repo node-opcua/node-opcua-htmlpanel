@@ -12,11 +12,11 @@
 <script src="javascript/RGraph/RGraph.line.js" ></script>
 
 <script>
-    var gauge;
-    var canvas;
-    var obj = null;
-    var data      = [];
-    var numvalues = 1200;
+    let gauge;
+    let canvas;
+    let obj = null;
+    let data      = [];
+    const numvalues = 1200;
 
     window.onload = function () {
 
@@ -37,9 +37,6 @@
 
         function prepare_graph() {
 
-                var l         = 0; // The letter 'L' - NOT a one
-                var updates = 0;
-
                 obj = new RGraph.Line('cvs_graph', [])
                     .set('title.vpos', 0.5)
                     .set('title.yaxis.pos', 0.5)
@@ -58,7 +55,7 @@
 
 
                 // Pre-pad the arrays with null values
-                for (var i=0; i<numvalues; ++i) { data.push(null); }
+                for (let i=0; i<numvalues; ++i) { data.push(null); }
 
         }
         prepare_graph();
@@ -68,14 +65,7 @@
         RGraph.Clear(canvas);
 
         // Add some data to the data arrays
-        var len = data.length;
-
-        //xx var lastvalue    = RG.is_null(data[len - 1]) ? 26 : data[len - 1];
-        //xx var random_value = RG.random(lastvalue  - 2,lastvalue  + 2);
-
-        //xx random_value = Math.max(random_value, 0);
-        //xx random_value = Math.min(random_value, 50);
-
+        const len = data.length;
         data.push(value);
 
         if (data.length > numvalues) {
@@ -95,37 +85,22 @@
 <script src='/socket.io/socket.io.js'></script>
 <script>
 
-    var messages = [];
-    var socket = io.connect('http://localhost:3700');
-    var field = document.getElementById("field");
-    var sendButton = document.getElementById("send");
-    var content = document.getElementById("content");
-    var info = document.getElementById("info");
+    const field = document.getElementById("field");
+    const sendButton = document.getElementById("send");
+    const content = document.getElementById("content");
+    const info = document.getElementById("info");
+    
+    const messages = [];
+    
+    const socket = io.connect('http://localhost:3700');
+
     socket.on('message', function (data) {
-
-/*
-        console.log(JSON.stringify(data,null," "));
-        messages.push(data.value.value + " " + data.sourceTimestamp);
-        var html = '';
-        for (var i = 0; i < messages.length; i++) {
-            html += messages[i] + '<br />';
-        }
-        content.innerHTML = html;
- */
-
         gauge.value = data.value;
         gauge.draw();
-//xx        gauge.grow();
-
         gauge.set('title.top', data.browseName);
-
         info.innerHTML = "nodeId= " + data.nodeId + " timestamp= "+ data.timestamp;
-
-
         drawGraph(data.value);
     });
-
-    // sendButton.onclick = function () { var text = field.value;  socket.emit('send', { message: text }); };
 
 </script>
 
