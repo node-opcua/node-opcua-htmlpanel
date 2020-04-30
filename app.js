@@ -47,10 +47,13 @@ const nodeIdToMonitor = "ns=1;s=Temperature";
 
         // --------------------------------------------------------
         const app = express();
-        app.get("/", function (req, res) {
-            res.send("It works! <a href='./index.html'>Start Here</a>");
+        app.set('view engine', 'html');
+        app.use(express.static(__dirname + '/'));
+        app.set('views', __dirname + '/');
+        app.get("/", function(req, res){
+            res.render('index.html');
         });
-    
+        
         app.use(express.static(__dirname + '/'));
     
         const io =socketIO.listen(app.listen(port));
