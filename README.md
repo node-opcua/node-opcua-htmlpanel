@@ -26,7 +26,7 @@ The application is also working on Windows, instructions left to the reader to a
     $ npm i
     $
     $ # start server in background
-    $ node node_modules/node-opcua/bin/simple_server.js > /dev/null &
+    $ node node_modules/node-opcua-samples/bin/simple_server.js > /dev/null &
     $
     $ # start the html server
     $ node app.js
