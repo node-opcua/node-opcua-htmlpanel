@@ -19,5 +19,5 @@ This OPC UA PubSub demo is built over two distinct modules:
     $ # start the client + web application
     $ node opc_ua_client.js
     
-Now visit  ````http://localhost:3700' on your web browser
+Now visit http://localhost:3700 on your web browser
 
