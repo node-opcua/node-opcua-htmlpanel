@@ -44,7 +44,6 @@ const nodeIdToMonitor = "ns=1;s=Temperature";
             console.log(" TERMINATED ------------------------------>")
         });
 
-        // --------------------------------------------------------
         const app = express();
         app.set('view engine', 'html');
         app.use(express.static(__dirname + '/'));
@@ -61,7 +60,6 @@ const nodeIdToMonitor = "ns=1;s=Temperature";
 
         console.log("Listening on port " + port);
         console.log("visit http://localhost:" + port);
-        // --------------------------------------------------------
 
         const itemToMonitor = {
             nodeId: nodeIdToMonitor,
@@ -84,11 +82,10 @@ const nodeIdToMonitor = "ns=1;s=Temperature";
             });
         });
 
-        // detect CTRL+C and close
         let running = true;
         process.on("SIGINT", async () => {
             if (!running) {
-                return; // avoid calling shutdown twice
+                return;
             }
             console.log("shutting down client");
             running = false;

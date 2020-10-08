@@ -1,38 +1,23 @@
-node-opcua-htmlpanel
-====================
 
-small HTML panel to display a OPCUA monitored variable based on node, express, socket.io  and node-opcua
+OPC UA PubSub Example
+=====================
 
+This OPC UA PubSub demo is built over two distinct modules:
 
-![alt text](
-https://raw.githubusercontent.com/node-opcua/node-opcua-htmlpanel/master/doc/image.png "...")
+1) a OPC UA server simulating a PLC
+2) a web application containing a OPC UA client 
 
-
-#### how to install
-
-##### prerequiste 
-
-*  git
-
-
-##### step by step install 
-
-This steps describe how you can install and test the application  on a linux box, such as ubuntu.
-The application is also working on Windows, instructions left to the reader to adapt.
-
+#### how to install and run
 
     $ git clone https://github.com/node-opcua/node-opcua-htmlpanel
     $ cd node-opcua-htmlpanel
     $ npm i
     $
     $ # start server in background
-    $ node node_modules/node-opcua-samples/bin/simple_server.js > /dev/null &
+    $ node opc_ua_server.js > /dev/null &
     $
-    $ # start the html server
-    $ node app.js
+    $ # start the client + web application
+    $ node opc_ua_client.js
     
 Now visit  ````http://localhost:3700' on your web browser
-    
-    
-        
-    
+
