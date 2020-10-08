@@ -1,108 +1,113 @@
-
 <!DOCTYPE html>
-<meta charset="utf-8">
+<html lang="en">
 
-<hr>
+<head>
+    <meta charset="UTF-8">
+    <title>OPC UA PubSub Example</title>
+    <meta name="description" content="">
+    <script src="javascript/jquery.min.js"></script>
+    <script src="javascript/RGraph/RGraph.common.core.js"></script>
+    <script src="javascript/RGraph/RGraph.gauge.js"></script>
+    <script src="javascript/RGraph/RGraph.common.effects.js"></script>
+    <script src="javascript/RGraph/RGraph.line.js"></script>
+    <script src='/socket.io/socket.io.js'></script>
+</head>
 
+<body>
+    <h1>OPC UA PubSub Example</h1>
+    <br>
 
-<script src="javascript/jquery.min.js"></script>
-<script src="javascript/RGraph/RGraph.common.core.js"></script>
-<script src="javascript/RGraph/RGraph.gauge.js"></script>
-<script src="javascript/RGraph/RGraph.common.effects.js" ></script>
-<script src="javascript/RGraph/RGraph.line.js" ></script>
+    <h2>Gauge</h2>
+    <canvas id="cvs" width="250" height="250">[No canvas support]</canvas>
+    <br>
 
+    <h2>Graph</h2>
+    <canvas id="cvs_graph" width="650" height="250">[No canvas support]</canvas>
+    <br>
+
+    <div id="field"></div>
+    <div id="content"></div>
+    <div id="info"></div>
+</body>
 <script>
-    let gauge;
-    let canvas;
-    let obj = null;
-    let data      = [];
-    const numvalues = 1200;
+let gauge;
+let canvas;
+let obj = null;
+let data = [];
+const numvalues = 1200;
 
-    window.onload = function () {
+window.onload = function() {
 
-        gauge = new RGraph.Gauge('cvs', 0, 100, 84)
-                .set('scale.decimals', 0)
-                .set('tickmarks.small', 50)
-                .set('tickmarks.big', 5)
-                .set('title.top', 'Temperature')
-                .set('title.top.size', 24)
-                .set('title.top.pos', 0.15)
-                .set('title.bottom', 'm³')
-                .set('title.bottom.color', '#aaa')
-                .set('border.outer', 'Gradient(white:white:white:white:white:white:white:white:white:white:#aaa)')
-                .draw();
-
-
-        canvas    = document.getElementById("cvs_graph");
-
-        function prepare_graph() {
-
-                obj = new RGraph.Line('cvs_graph', [])
-                    .set('title.vpos', 0.5)
-                    .set('title.yaxis.pos', 0.5)
-                    .set('colors', ['black'])
-                    .set('linewidth',0.75)
-                    .set('yaxispos', 'right')
-                    .set('ymax', 100)
-                    .set('xticks', 25)
-                    .set('numyticks', 0)
-                    .set('numxticks', 0)
-                    .set('background.grid', true)
-                    .set('tickmarks', true)
-                    .set('shadow', false)
-                    .set('gutter.top', 5)
-                    .set('gutter.bottom', 5);
+    gauge = new RGraph.Gauge('cvs', 0, 100, 84)
+        .set('scale.decimals', 0)
+        .set('tickmarks.small', 50)
+        .set('tickmarks.big', 5)
+        .set('title.top', 'Temperature')
+        .set('title.top.size', 24)
+        .set('title.top.pos', 0.15)
+        .set('title.bottom', 'm³')
+        .set('title.bottom.color', '#aaa')
+        .set('border.outer', 'Gradient(white:white:white:white:white:white:white:white:white:white:#aaa)')
+        .draw();
 
 
-                // Pre-pad the arrays with null values
-                for (let i=0; i<numvalues; ++i) { data.push(null); }
+    canvas = document.getElementById("cvs_graph");
 
-        }
-        prepare_graph();
+    function prepare_graph() {
+
+        obj = new RGraph.Line('cvs_graph', [])
+            .set('title.vpos', 0.5)
+            .set('title.yaxis.pos', 0.5)
+            .set('colors', ['black'])
+            .set('linewidth', 0.75)
+            .set('yaxispos', 'right')
+            .set('ymax', 100)
+            .set('xticks', 25)
+            .set('numyticks', 0)
+            .set('numxticks', 0)
+            .set('background.grid', true)
+            .set('tickmarks', true)
+            .set('shadow', false)
+            .set('gutter.top', 5)
+            .set('gutter.bottom', 5);
+
+
+        for (let i = 0; i < numvalues; ++i) { data.push(null); }
     }
-    function drawGraph (value,timestamp) {
-        if (!obj) return;
-        RGraph.Clear(canvas);
+    prepare_graph();
+}
 
-        // Add some data to the data arrays
-        const len = data.length;
-        data.push(value);
+function drawGraph(value, timestamp) {
+    if (!obj) return;
+    RGraph.Clear(canvas);
 
-        if (data.length > numvalues) {
-            data = RGraph.array_shift(data);
-        }
-        obj.original_data[0] = data;
-        obj.Draw();
+    const len = data.length;
+    data.push(value);
+
+    if (data.length > numvalues) {
+        data = RGraph.array_shift(data);
     }
-
+    obj.original_data[0] = data;
+    obj.Draw();
+}
 </script>
-<canvas id="cvs" width="250" height="250">[No canvas support]</canvas>
-<canvas id="cvs_graph" width="650" height="250">[No canvas support]</canvas>
-
-<div id="field"></div>
-<div id="content"></div>
-<div id="info"></div>
-<script src='/socket.io/socket.io.js'></script>
 <script>
+const field = document.getElementById("field");
+const sendButton = document.getElementById("send");
+const content = document.getElementById("content");
+const info = document.getElementById("info");
 
-    const field = document.getElementById("field");
-    const sendButton = document.getElementById("send");
-    const content = document.getElementById("content");
-    const info = document.getElementById("info");
-    
-    const messages = [];
-    
-    const socket = io.connect('http://localhost:3700');
+const messages = [];
 
-    socket.on('message', function (data) {
-        gauge.value = data.value;
-        gauge.draw();
-        gauge.set('title.top', data.browseName);
-        info.innerHTML = "nodeId= " + data.nodeId + " timestamp= "+ data.timestamp;
-        drawGraph(data.value);
-    });
+const socket = io.connect('http://localhost:3700');
 
+socket.on('message', function(data) {
+    gauge.value = data.value;
+    gauge.draw();
+    gauge.set('title.top', data.browseName);
+    info.innerHTML = "nodeId= " + data.nodeId + " timestamp= " + data.timestamp;
+    drawGraph(data.value);
+});
 </script>
 
-
-
+</html>

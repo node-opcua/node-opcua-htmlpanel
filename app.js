@@ -38,9 +38,9 @@ const nodeIdToMonitor = "ns=1;s=Temperature";
             priority: 10
         });
 
-        subscription.on("keepalive", function () {
+        subscription.on("keepalive", function() {
             console.log("keepalive");
-        }).on("terminated", function () {
+        }).on("terminated", function() {
             console.log(" TERMINATED ------------------------------>")
         });
 
@@ -49,21 +49,20 @@ const nodeIdToMonitor = "ns=1;s=Temperature";
         app.set('view engine', 'html');
         app.use(express.static(__dirname + '/'));
         app.set('views', __dirname + '/');
-        app.get("/", function(req, res){
+        app.get("/", function(req, res) {
             res.render('index.html');
         });
-        
+
         app.use(express.static(__dirname + '/'));
-    
-        const io =socketIO.listen(app.listen(port));
-    
-        io.sockets.on('connection', function (socket) {
-        });
-    
+
+        const io = socketIO.listen(app.listen(port));
+
+        io.sockets.on('connection', function(socket) {});
+
         console.log("Listening on port " + port);
         console.log("visit http://localhost:" + port);
         // --------------------------------------------------------
-    
+
         const itemToMonitor = {
             nodeId: nodeIdToMonitor,
             attributeId: AttributeIds.Value
@@ -102,12 +101,10 @@ const nodeIdToMonitor = "ns=1;s=Temperature";
             process.exit(0);
 
         });
-  
-    }
-    catch (err) {
+
+    } catch (err) {
         console.log(chalk.bgRed.white("Error" + err.message));
         console.log(err);
         process.exit(-1);
     }
 })();
-
