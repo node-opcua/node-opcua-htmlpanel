@@ -29,7 +29,6 @@ function constructFilename(filename) {
     return path.join(__dirname, "../", filename);
 }
 
-
 const argv = yargs(process.argv)
     .wrap(132)
 
@@ -76,7 +75,6 @@ const maxAllowedSessionNumber = argv.maxAllowedSessionNumber;
 const maxConnectionsPerEndpoint = maxAllowedSessionNumber;
 const maxAllowedSubscriptionNumber = argv.maxAllowedSubscriptionNumber || 50;
 OPCUAServer.MAX_SUBSCRIPTION = maxAllowedSubscriptionNumber;
-
 
 const os = require('os');
 
@@ -240,7 +238,6 @@ const paths = envPaths(productUri);
             browseName: "Temperature",
             nodeId: "s=Temperature",
             dataType: "Double",
-
             value: {
                 refreshFunc: function(callback) {
                     const temperature = 20 + 10 * Math.sin(Date.now() / 10000);
@@ -254,68 +251,9 @@ const paths = envPaths(productUri);
             }
         });
 
-        const node = namespace.addAnalogDataItem({
-            organizedBy: myDevices,
-            nodeId: "s=TemperatureAnalogItem",
-            browseName: "TemperatureAnalogItem",
-            definition: "(tempA -25) + tempB",
-            valuePrecision: 0.5,
-            engineeringUnitsRange: { low: 100, high: 200 },
-            instrumentRange: { low: -100, high: +200 },
-            engineeringUnits: standardUnits.degree_celsius,
-            dataType: "Double",
-            value: {
-                get: function() {
-                    return new Variant({ dataType: DataType.Double, value: Math.random() + 19.0 });
-                }
-            }
-        });
-
-        const m3x3 = namespace.addVariable({
-            organizedBy: addressSpace.rootFolder.objects,
-            nodeId: "s=Matrix",
-            browseName: "Matrix",
-            dataType: "Double",
-            valueRank: 2,
-            arrayDimensions: [3, 3],
-            value: {
-                get: function() {
-                    return new Variant({
-                        dataType: DataType.Double,
-                        arrayType: VariantArrayType.Matrix,
-                        dimensions: [3, 3],
-                        value: [1, 2, 3, 4, 5, 6, 7, 8, 9]
-                    });
-                }
-            }
-        });
-
-        const xyz = namespace.addVariable({
-            organizedBy: addressSpace.rootFolder.objects,
-            nodeId: "s=Position",
-            browseName: "Position",
-            dataType: "Double",
-            valueRank: 1,
-            arrayDimensions: null,
-            value: {
-                get: function() {
-                    return new Variant({
-                        dataType: DataType.Double,
-                        arrayType: VariantArrayType.Array,
-                        value: [1, 2, 3, 4]
-                    });
-                }
-            }
-        });
-
         const view = namespace.addView({
             organizedBy: rootFolder.views,
             browseName: "MyView"
-        });
-
-        view.addReference({
-            referenceType: "Organizes",
-            nodeId: node.nodeId
         });
 
     }
