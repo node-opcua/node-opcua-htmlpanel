@@ -1,23 +1,27 @@
 {
-  "name": "node-opcua-htmlpanel",
-  "version": "2.1.0",
-  "description": "Small HTML panel to display a OPCUA monitored variable based on node, express, socket.io  and node-opcua",
-  "main": "app.js",
-  "bin": {},
-  "directories": {
-    "test": "test"
-  },
-  "scripts": {},
-  "repository": {},
-  "keywords": [],
-  "author": "Etienne Rossignon",
-  "license": "MIT",
+  "name": "opcua-pubsub-example",
+  "version": "1.0.0",
+  "description": "OPC UA PubSub Exemple",
+  "main": "opc_ua_server.js",
   "dependencies": {
-    "chalk": "^3.0.0",
-    "express": "~4.17.1",
-    "node-opcua": "~2.14.0",
-    "node-opcua-samples": "~2.14.0",
-    "socket.io": "~2.3.0"
+    "env-paths": "^2.2.0",
+    "express": "^4.17.1",
+    "node-opcua": "^2.19.0",
+    "socket.io": "^2.3.0",
+    "underscore": "^1.11.0"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pedromoritz/node-opcua-htmlpanel.git"
+  },
+  "author": "Pedro Moritz de Carvalho Neto",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pedromoritz/node-opcua-htmlpanel/issues"
+  },
+  "homepage": "https://github.com/pedromoritz/node-opcua-htmlpanel#readme"
 }
