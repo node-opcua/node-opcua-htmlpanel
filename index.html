@@ -11,55 +11,51 @@
     <script src="javascript/RGraph/RGraph.common.effects.js"></script>
     <script src="javascript/RGraph/RGraph.line.js"></script>
     <script src='/socket.io/socket.io.js'></script>
+    <style>
+        * {
+            font-family: sans-serif;
+        }
+    </style>
 </head>
 
 <body>
     <h1>OPC UA PubSub Example</h1>
     <br>
-
-    <h2>Gauge</h2>
-    <canvas id="cvs" width="250" height="250">[No canvas support]</canvas>
-    <br>
-
-    <h2>Graph</h2>
-    <canvas id="cvs_graph" width="650" height="250">[No canvas support]</canvas>
-    <br>
-
-    <div id="field"></div>
-    <div id="content"></div>
-    <div id="info"></div>
+    Variable: <span id="info"></span><br><br>
+    <canvas id="gauge" width="300" height="300">[No canvas support]</canvas>
+    <canvas id="graph" width="800" height="300">[No canvas support]</canvas>
 </body>
+
 <script>
 let gauge;
-let canvas;
+let graph;
 let obj = null;
 let data = [];
 const numvalues = 1200;
 
 window.onload = function() {
 
-    gauge = new RGraph.Gauge('cvs', 0, 100, 84)
+    gauge = new RGraph.Gauge('gauge', 0, 100, 84)
         .set('scale.decimals', 0)
         .set('tickmarks.small', 50)
         .set('tickmarks.big', 5)
         .set('title.top', 'Temperature')
         .set('title.top.size', 24)
         .set('title.top.pos', 0.15)
-        .set('title.bottom', 'm³')
+        .set('title.bottom', 'ºC')
         .set('title.bottom.color', '#aaa')
         .set('border.outer', 'Gradient(white:white:white:white:white:white:white:white:white:white:#aaa)')
         .draw();
 
-
-    canvas = document.getElementById("cvs_graph");
+    graph = document.getElementById("graph");
 
     function prepare_graph() {
 
-        obj = new RGraph.Line('cvs_graph', [])
+        obj = new RGraph.Line('graph', [])
             .set('title.vpos', 0.5)
             .set('title.yaxis.pos', 0.5)
-            .set('colors', ['black'])
-            .set('linewidth', 0.75)
+            .set('colors', ['red'])
+            .set('linewidth', 1.00)
             .set('yaxispos', 'right')
             .set('ymax', 100)
             .set('xticks', 25)
@@ -71,15 +67,17 @@ window.onload = function() {
             .set('gutter.top', 5)
             .set('gutter.bottom', 5);
 
-
-        for (let i = 0; i < numvalues; ++i) { data.push(null); }
+        for (let i = 0; i < numvalues; ++i) {
+            data.push(null);
+        }
     }
+
     prepare_graph();
 }
 
 function drawGraph(value, timestamp) {
     if (!obj) return;
-    RGraph.Clear(canvas);
+    RGraph.Clear(graph);
 
     const len = data.length;
     data.push(value);
@@ -90,22 +88,15 @@ function drawGraph(value, timestamp) {
     obj.original_data[0] = data;
     obj.Draw();
 }
-</script>
-<script>
-const field = document.getElementById("field");
-const sendButton = document.getElementById("send");
-const content = document.getElementById("content");
+
 const info = document.getElementById("info");
-
-const messages = [];
-
 const socket = io.connect('http://localhost:3700');
 
 socket.on('message', function(data) {
     gauge.value = data.value;
-    gauge.draw();
-    gauge.set('title.top', data.browseName);
-    info.innerHTML = "nodeId= " + data.nodeId + " timestamp= " + data.timestamp;
+    RGraph.clear(gauge.canvas);
+    gauge.Draw();
+    info.innerHTML = `nodeId=${data.nodeId} timestamp= ${data.timestamp}`;
     drawGraph(data.value);
 });
 </script>

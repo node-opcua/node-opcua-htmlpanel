@@ -31,42 +31,31 @@ function constructFilename(filename) {
 
 const argv = yargs(process.argv)
     .wrap(132)
-
     .string("alternateHostname")
     .describe("alternateHostname")
-
     .number("port")
     .default("port", 26543)
-
     .number("maxAllowedSessionNumber")
     .describe("maxAllowedSessionNumber", "the maximum number of concurrent client session that the server will accept")
     .default("maxAllowedSessionNumber", 500)
-
     .number("maxAllowedSubscriptionNumber")
     .describe("maxAllowedSubscriptionNumber", "the maximum number of concurrent subscriptions")
-
     .boolean("silent")
     .default("silent", false)
     .describe("silent", "no trace")
-
-
     .string("alternateHostname")
     .default("alternateHostname", null)
-
     .number("keySize")
     .describe("keySize", "certificate keySize [1024|2048|3072|4096]")
     .default("keySize", 2048)
     .alias("k", "keySize")
-
     .string("applicationName")
     .describe("applicationName", "the application name")
     .default("applicationName", "NodeOPCUA-Server")
-
     .alias("a", "alternateHostname")
     .alias("m", "maxAllowedSessionNumber")
     .alias("n", "applicationName")
     .alias("p", "port")
-
     .help(true)
     .argv;
 
@@ -167,23 +156,17 @@ const paths = envPaths(productUri);
     assert(fs.existsSync(certificateFile));
 
     const server_options = {
-
         serverCertificateManager,
         userCertificateManager,
-
         certificateFile,
         privateKeyFile,
-
         port: port,
-
         maxAllowedSessionNumber: maxAllowedSessionNumber,
         maxConnectionsPerEndpoint: maxConnectionsPerEndpoint,
-
         nodeset_filename: [
             nodesets.standard_nodeset_file,
             nodesets.di_nodeset_filename
         ],
-
         serverInfo: {
             applicationName: { text: "NodeOPCUA", locale: "en" },
             applicationUri: applicationUri,
@@ -207,18 +190,14 @@ const paths = envPaths(productUri);
             }
         },
         userManager: userManager,
-
-
         isAuditing: false,
         registerServerMethod: RegisterServerMethod.LDS,
-        discoveryServerEndpointUrl: "opc.tcp://localhost:4840",
-
+        discoveryServerEndpointUrl: "opc.tcp://localhost:4840"
     };
 
     process.title = "Node OPCUA Server on port : " + server_options.port;
     server_options.alternateHostname = argv.alternateHostname;
     const server = new OPCUAServer(server_options);
-
     const hostname = require("os").hostname();
 
     await server.initialize();
@@ -240,7 +219,7 @@ const paths = envPaths(productUri);
             dataType: "Double",
             value: {
                 refreshFunc: function(callback) {
-                    const temperature = 20 + 10 * Math.sin(Date.now() / 10000);
+                    const temperature = 30 + 10 * Math.sin(Date.now() / 10000);
                     const value = new Variant({ dataType: DataType.Double, value: temperature });
                     const sourceTimestamp = new Date();
 
