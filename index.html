@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>OPC UA PubSub Example</title>
     <meta name="description" content="">
-    <script src="javascript/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
     <script src="javascript/RGraph/RGraph.common.core.js"></script>
     <script src="javascript/RGraph/RGraph.gauge.js"></script>
     <script src="javascript/RGraph/RGraph.common.effects.js"></script>
@@ -15,25 +15,6 @@
         * {
             font-family: sans-serif;
         }
-
-        #containerCanvas {
-            position: relative;
-            top: 0;
-            left: 0;
-            margin: 20px;
-        }
-
-        #textbox {
-  position: absolute;
-  padding: 0;
-  box-sizing: border-box;
-  background-color: #333333;
-  border: 2px solid #428bca;
-  z-index: 100;
-  width: 400px;
-  height: 400px;
-  padding: 60px;
-}
     </style>
 </head>
 
@@ -41,6 +22,7 @@
     <h1>OPC UA PubSub Example</h1>
     <br>
     <b>Monitored Variable: </b><span id="info"></span><br>
+    <b>Received Value: </b><span id="value"></span><br>
     <b>Timestamp: </b><span id="timestamp"></span><br>
     <br>
     <canvas id="gauge" width="300" height="300">[No canvas support]</canvas>
@@ -117,6 +99,7 @@ socket.on('message', function(data) {
     gauge.value = data.value;
     gauge.Draw();
     info.innerHTML = data.nodeId;
+    value.innerHTML = data.value;
     timestamp.innerHTML = data.timestamp;
     drawGraph(data.value);
 });
