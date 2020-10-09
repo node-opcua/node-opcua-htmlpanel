@@ -215,11 +215,11 @@ const paths = envPaths(productUri);
         namespace.addVariable({
             organizedBy: myDevices,
             browseName: "Temperature",
-            nodeId: "s=Temperature",
+            nodeId: "s=TT001",
             dataType: "Double",
             value: {
                 refreshFunc: function(callback) {
-                    const temperature = 30 + 10 * Math.sin(Date.now() / 10000);
+                    const temperature = 30 + 20 * Math.sin(Date.now() / 10000);
                     const value = new Variant({ dataType: DataType.Double, value: temperature });
                     const sourceTimestamp = new Date();
 

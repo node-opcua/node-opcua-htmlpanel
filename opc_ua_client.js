@@ -12,7 +12,7 @@ const {
 
 const hostname = require("os").hostname().toLowerCase();
 const endpointUrl = "opc.tcp://" + hostname + ":26543/UA/SampleServer";
-const nodeIdToMonitor = "ns=1;s=Temperature";
+const nodeIdToMonitor = "ns=1;s=TT001";
 
 (async () => {
     try {
