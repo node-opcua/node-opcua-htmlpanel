@@ -14,8 +14,8 @@
   "license": "MIT",
   "dependencies": {
     "chalk": "^5.3.0",
-    "express": "~4.18.3",
-    "node-opcua": "~2.122.0",
-    "socket.io": "~4.7.4"
+    "express": "~4.19.2",
+    "node-opcua": "~2.123.0",
+    "socket.io": "~4.7.5"
   }
 }
